@@ -165,18 +165,18 @@ Shader "MyShader/Ex008 - Shadow Map"
 			}
 
 			//refer:《DX12开发实战》20章阴影贴图 & https://www.youtube.com/watch?v=3AdLu0PHOnE&t=413s
-			float tap4PCF(float d,float2 shadow_uv)
+			float tap4PCF(float d,float2 uv)
 			{
 			// Transform to texel space
-				float2 texPos = _TexSize*shadow_uv.xy;
+				float2 texPos = _TexSize*uv.xy;
 			// Determine the lerp amounts.    
 				float2 t = frac(texPos);
 			 // sample shadow map
 				float dx = 1.0f/_TexSize;
-				float s0 = tex2D(MyShadowMap, shadow_uv).r;
-				float s1 = tex2D(MyShadowMap, shadow_uv+float2(dx,0)).r;
-				float s2 = tex2D(MyShadowMap, shadow_uv+float2(0,dx)).r;
-				float s3 = tex2D(MyShadowMap, shadow_uv+float2(dx,dx)).r;
+				float s0 = tex2D(MyShadowMap, uv).r;
+				float s1 = tex2D(MyShadowMap, uv+float2(dx,0)).r;
+				float s2 = tex2D(MyShadowMap, uv+float2(0,dx)).r;
+				float s3 = tex2D(MyShadowMap, uv+float2(dx,dx)).r;
 				float result0 = shadowMap(d,s0);
 				float result1 = shadowMap(d,s1);
 				float result2 = shadowMap(d,s2);
@@ -185,6 +185,25 @@ Shader "MyShader/Ex008 - Shadow Map"
 				float shadow = lerp( lerp( result0, result1, t.x ), lerp( result2, result3, t.x ), t.y );
 				return shadow;
 			}
+
+			float PCF_Filter(float d,float2 uv)
+			{
+				//PCF
+				float shadow = 0;
+				float dx = 1.0f/_TexSize;
+				for(int x = -1;x<=1;++x)
+				 for(int y=-1;y<=1;++y)
+					{
+						float2 _offset = dx*float2(x,y);
+						float m = tex2D(MyShadowMap,uv+_offset).r;
+						if(0)
+							shadow += tap4PCF(d,uv+_offset);							
+						else
+							shadow += shadowMap(d,m);
+					}		
+				return shadow/9.0f;
+			}
+
 
 			float shadow(v2f i)
 			{
@@ -210,9 +229,9 @@ Shader "MyShader/Ex008 - Shadow Map"
 				
 				float shadow = 0.0;
 
-				if(0)
+				if(1)
 				{
-					//shadow = PCF_Filter();
+					shadow = PCF_Filter(current_depth,shadow_uv);
 				}
 				else if(0)
 				{
