@@ -12,12 +12,12 @@ public class Ex008_ShadowMap : MonoBehaviour {
 		BOX_PCF_FILTER3X3=3,		
 	};
 	public bool tap_pcf=false;//在3x3 滤波同时时开启4 tap pcf
+	public bool Debug_Shadow = false;
 	public SHADOWMODE _mode;
 
 	public RenderTexture shadowMap;
 	public Shader shader;
 	public Texture uvChecker;
-
 	private Vector3[] mainCameraFrustumPoints;
 	private Vector3[] shadowCameraFrustumPoints;
 
@@ -146,6 +146,12 @@ public class Ex008_ShadowMap : MonoBehaviour {
 			Shader.SetGlobalInt("_tap4", 1);
 		else
 			Shader.SetGlobalInt("_tap4", 0);
+
+		if(Debug_Shadow)
+			Shader.SetGlobalInt("_Debug_Shadow", 1);
+		else
+			Shader.SetGlobalInt("_Debug_Shadow", 0);
+
 
 		if (!shader)
 			return;

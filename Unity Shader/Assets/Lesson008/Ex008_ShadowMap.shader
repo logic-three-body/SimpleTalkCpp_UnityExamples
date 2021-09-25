@@ -10,6 +10,7 @@ Shader "MyShader/Ex008 - Shadow Map"
 		specularColor		("Specular Color", Color) = (1,1,1,1)
 		specularShininess	("Specular Shininess", Range(1,128)) = 10
 		shadowBias			("shadow bias", Range(0, 0.1)) = 0.05
+		_strength			("shadow strength", Range(0, 1.0)) = 0.0
 	}
 
 	SubShader
@@ -42,8 +43,10 @@ Shader "MyShader/Ex008 - Shadow Map"
 			};
 			int _ShadowMode;//阴影模式 pcf3X3 4-tap only-shdowmap等
 			int _tap4;//在pcf3X3同时是否开启4-tap pcf 此处借鉴《DX12开发实战》20.5.2
+			int _Debug_Shadow;//仅输出shadow
 			float4x4 MyShadowVP;//转换至光源空间矩阵 proj*view
 			static float _TexSize = 512.0f;//float const float都不可以
+			float _strength;//阴影强度
 
 			//static const float _TexSize = 512.0f;//float,const float都不可以
 			//float _TexSize = 512.0f;//float const float都不可以
@@ -62,7 +65,7 @@ Shader "MyShader/Ex008 - Shadow Map"
 				float4 wpos = mul(unity_ObjectToWorld, v.pos);
 				// transform coordinates into Light Space 
 				o.shadowPos = mul(MyShadowVP, wpos);
-				//o.shadowPos.xyz /= o.shadowPos.w;//divide w in fragment shader after interpolate
+				o.shadowPos.xyz /= o.shadowPos.w;//prespective division
 				return o;
 			}
 
@@ -101,7 +104,6 @@ Shader "MyShader/Ex008 - Shadow Map"
 
 			float4 shadow_Debug(v2f i) {
 				float4 s = i.shadowPos;
-				s.xyz/=i.shadowPos.w;
 				float3 uv = s.xyz * 0.5 + 0.5;
 				float d = uv.z;
 
@@ -163,7 +165,7 @@ Shader "MyShader/Ex008 - Shadow Map"
 
 			float shadowMap(float d1,float d2)
 			{
-				return d1<=d2;//true : not shadow , false in the shadow
+				return d1<=d2?1:_strength;//true : not shadow , false in the shadow
 			}
 
 			//refer:《DX12开发实战》20章阴影贴图 & https://www.youtube.com/watch?v=3AdLu0PHOnE&t=413s
@@ -211,13 +213,12 @@ Shader "MyShader/Ex008 - Shadow Map"
 			{
 				// transform coordinates into texture coordinates [shadow map]
 				float4 s = i.shadowPos;
-				s.xyz/=i.shadowPos.w;
 				float3 shadow_uv = s.xyz * 0.5 + 0.5;
 				float current_depth = shadow_uv.z;	//fragment depth in shadow map	
 				
 				//shadow bias
 				float slope = 1.0;
-				if(false)
+				if(false)//bias according to slope
 				{
 					float3 N = normalize(i.normal);
 					float3 L = normalize(-MyLightDir.xyz);
@@ -252,10 +253,11 @@ Shader "MyShader/Ex008 - Shadow Map"
 			float4 ps_main (v2f i) : SV_Target {
 				//float4 s = shadow_Debug(i);
 				float4 s = shadow(i);
-				return s;
+				if(_Debug_Shadow)
+					return s;
 
 				float4 c = basicLighting(i.wpos, i.normal);
-				//return c * s;
+				return c * s;
 			}
 			ENDCG
 		}

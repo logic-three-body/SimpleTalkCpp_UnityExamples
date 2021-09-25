@@ -23,15 +23,15 @@ Shader "MyShader/Ex008 - ShadowMap Cast"
 				float depth		: TEXCOORD0;
 			};
 	
-			float4x4  MyShadowVP;
+			float4x4  MyShadowVP;//转换至光源空间矩阵 proj*view
 
 			v2f vs_main (appdata v) {
 				v2f o;
 
 			#if true
 				float4 wpos = mul(unity_ObjectToWorld, v.pos);
-				o.pos = mul(MyShadowVP, wpos);
-				float d = o.pos.z / o.pos.w;
+				o.pos = mul(MyShadowVP, wpos);//trans to light space
+				float d = o.pos.z / o.pos.w;//透视除法（正交投影时可省略）
 				d = d * 0.5 + 0.5;
 			#else
 				o.pos = UnityObjectToClipPos(v.pos);				
