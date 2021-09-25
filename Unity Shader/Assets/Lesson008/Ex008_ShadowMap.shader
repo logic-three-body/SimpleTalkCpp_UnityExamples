@@ -45,6 +45,8 @@ Shader "MyShader/Ex008 - Shadow Map"
 			static float _TexSize = 512.0f;//float const float都不可以
 			//static const float _TexSize = 512.0f;//float,const float都不可以
 			//float _TexSize = 512.0f;//float const float都不可以
+			//原因见：
+			//https://forum.unity.com/threads/changing-global-shader-variables-in-cginc.495857/
 			
 			v2f vs_main (appdata v) {
 				v2f o;
@@ -157,6 +159,32 @@ Shader "MyShader/Ex008 - Shadow Map"
 			}
 
 
+			float shadowMap(float d1,float d2)
+			{
+				return d1<=d2;//true : not shadow , false in the shadow
+			}
+
+			//refer:《DX12开发实战》20章阴影贴图 & https://www.youtube.com/watch?v=3AdLu0PHOnE&t=413s
+			float tap4PCF(float d,float2 shadow_uv)
+			{
+			// Transform to texel space
+				float2 texPos = _TexSize*shadow_uv.xy;
+			// Determine the lerp amounts.    
+				float2 t = frac(texPos);
+			 // sample shadow map
+				float dx = 1.0f/_TexSize;
+				float s0 = tex2D(MyShadowMap, shadow_uv).r;
+				float s1 = tex2D(MyShadowMap, shadow_uv+float2(dx,0)).r;
+				float s2 = tex2D(MyShadowMap, shadow_uv+float2(0,dx)).r;
+				float s3 = tex2D(MyShadowMap, shadow_uv+float2(dx,dx)).r;
+				float result0 = shadowMap(d,s0);
+				float result1 = shadowMap(d,s1);
+				float result2 = shadowMap(d,s2);
+				float result3 = shadowMap(d,s3);
+
+				float shadow = lerp( lerp( result0, result1, t.x ), lerp( result2, result3, t.x ), t.y );
+				return shadow;
+			}
 
 			float shadow(v2f i)
 			{
@@ -174,16 +202,25 @@ Shader "MyShader/Ex008 - Shadow Map"
 					float3 L = normalize(-MyLightDir.xyz);
 					slope = tan(acos(dot(N,L)));
 				}
-
-				current_depth-=shadowBias*slope;
+				float _bias = shadowBias*slope;
+				current_depth-=_bias;
 
 				float orgin_depth=0.0;//depth in shadow map,the closest point towards light
 				orgin_depth=tex2D(MyShadowMap, shadow_uv).r;
 				
 				float shadow = 0.0;
-				if(false)
+
+				if(0)
 				{
-					//PCF
+					//shadow = PCF_Filter();
+				}
+				else if(0)
+				{
+					shadow = tap4PCF(current_depth,shadow_uv);
+				}
+				else
+				{
+					shadow = shadowMap(current_depth,orgin_depth);					
 				}
 
 
@@ -192,8 +229,8 @@ Shader "MyShader/Ex008 - Shadow Map"
 			}
 
 			float4 ps_main (v2f i) : SV_Target {
-				float4 s = shadow_Debug(i);
-				//float4 s = shadow(i);
+				//float4 s = shadow_Debug(i);
+				float4 s = shadow(i);
 				return s;
 
 				float4 c = basicLighting(i.wpos, i.normal);

@@ -24,6 +24,8 @@
 
 [Unity Shadow Mapping Demo](https://www.youtube.com/watch?v=3AdLu0PHOnE)
 
+[金柚子大佬 · 语雀 (yuque.com)](https://www.yuque.com/yikejinyouzi/aau4tk/totr2w#Bi0nv)
+
 [Shadow Map (廣東話, Cantonese) [簡單黎講 C++]](https://www.youtube.com/watch?v=oPxY1eTrrOo)
 
 [Unity Shader - Custom SSSM(Screen Space Shadow Map) 自定义屏幕空间阴影图](https://blog.csdn.net/linjf520/article/details/105456097)
