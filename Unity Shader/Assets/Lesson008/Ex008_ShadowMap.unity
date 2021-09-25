@@ -395,13 +395,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 456901631}
-  m_LocalRotation: {x: 0.6228299, y: 0.35882506, z: 0.6003854, w: -0.35052082}
+  m_LocalRotation: {x: 0.62695175, y: 0.36102274, z: 0.5989552, w: -0.3432882}
   m_LocalPosition: {x: -2.2, y: 2.33, z: 1.61}
   m_LocalScale: {x: 1.5316228, y: 1.5316226, z: 1.5316226}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: -119.83099, y: -446.156, z: -3.005005}
+  m_LocalEulerAnglesHint: {x: -120.354, y: -444.685, z: -4.7059937}
 --- !u!1 &875423868
 GameObject:
   m_ObjectHideFlags: 0
@@ -939,6 +939,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b18bfdb9aa71674cba81608f5251aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tap_pcf: 1
+  _mode: 1
   shadowMap: {fileID: 8400000, guid: 141456c84b914dd49840de1ab49f3055, type: 2}
   shader: {fileID: 4800000, guid: 1c106f2de81ba2c429d521ae989bb079, type: 3}
   uvChecker: {fileID: 2800000, guid: 22d7ede6bd1b4734c813f1f7b2187cd4, type: 3}

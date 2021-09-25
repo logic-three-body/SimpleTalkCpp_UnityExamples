@@ -40,9 +40,11 @@ Shader "MyShader/Ex008 - Shadow Map"
 				float3 normal	: NORMAL;
 				float4 shadowPos : TEXCOORD1;
 			};
-
-			float4x4 MyShadowVP;
+			int _ShadowMode;//阴影模式 pcf3X3 4-tap only-shdowmap等
+			int _tap4;//在pcf3X3同时是否开启4-tap pcf 此处借鉴《DX12开发实战》20.5.2
+			float4x4 MyShadowVP;//转换至光源空间矩阵 proj*view
 			static float _TexSize = 512.0f;//float const float都不可以
+
 			//static const float _TexSize = 512.0f;//float,const float都不可以
 			//float _TexSize = 512.0f;//float const float都不可以
 			//原因见：
@@ -196,7 +198,7 @@ Shader "MyShader/Ex008 - Shadow Map"
 					{
 						float2 _offset = dx*float2(x,y);
 						float m = tex2D(MyShadowMap,uv+_offset).r;
-						if(0)
+						if(_tap4)
 							shadow += tap4PCF(d,uv+_offset);							
 						else
 							shadow += shadowMap(d,m);
@@ -229,11 +231,11 @@ Shader "MyShader/Ex008 - Shadow Map"
 				
 				float shadow = 0.0;
 
-				if(1)
+				if(3==_ShadowMode)
 				{
 					shadow = PCF_Filter(current_depth,shadow_uv);
 				}
-				else if(0)
+				else if(2==_ShadowMode)
 				{
 					shadow = tap4PCF(current_depth,shadow_uv);
 				}

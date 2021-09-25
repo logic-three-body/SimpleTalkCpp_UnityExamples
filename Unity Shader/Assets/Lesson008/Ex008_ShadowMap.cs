@@ -5,6 +5,15 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Ex008_ShadowMap : MonoBehaviour {
 
+	public enum SHADOWMODE
+	{
+		SHADOW_MAP=1,
+		TAP4PCF=2,
+		BOX_PCF_FILTER3X3=3,		
+	};
+	public bool tap_pcf=false;//在3x3 滤波同时时开启4 tap pcf
+	public SHADOWMODE _mode;
+
 	public RenderTexture shadowMap;
 	public Shader shader;
 	public Texture uvChecker;
@@ -131,6 +140,12 @@ public class Ex008_ShadowMap : MonoBehaviour {
 
 		Shader.SetGlobalTexture("uvChecker", uvChecker);
 		Shader.SetGlobalTexture("MyShadowMap", shadowMap);
+
+		Shader.SetGlobalInt("_ShadowMode", (int)_mode);
+		if(tap_pcf)
+			Shader.SetGlobalInt("_tap4", 1);
+		else
+			Shader.SetGlobalInt("_tap4", 0);
 
 		if (!shader)
 			return;
