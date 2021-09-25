@@ -42,9 +42,9 @@ Shader "MyShader/Ex008 - Shadow Map"
 			};
 
 			float4x4 MyShadowVP;
-			static float _TexSize = 512.0f;//float const float都不可以
-			//static const float _TexSize = 512.0f;//float,const float都不可以
-			//float _TexSize = 512.0f;//float const float都不可以
+			static float _TexSize = 512.0f;//float const float閮戒笉鍙互
+			//static const float _TexSize = 512.0f;//float,const float閮戒笉鍙互
+			//float _TexSize = 512.0f;//float const float閮戒笉鍙互
 			
 			v2f vs_main (appdata v) {
 				v2f o;
@@ -56,8 +56,9 @@ Shader "MyShader/Ex008 - Shadow Map"
 				o.normal = mul((float3x3)UNITY_MATRIX_M, v.normal); // normal has no translation, that's why mul float3x3
 
 				float4 wpos = mul(unity_ObjectToWorld, v.pos);
+				// transform coordinates into Light Space 
 				o.shadowPos = mul(MyShadowVP, wpos);
-				o.shadowPos.xyz /= o.shadowPos.w;
+				//o.shadowPos.xyz /= o.shadowPos.w;//divide w in fragment shader after interpolate
 				return o;
 			}
 
@@ -94,10 +95,12 @@ Shader "MyShader/Ex008 - Shadow Map"
 				return color;
 			}
 
-			float4 shadow(v2f i) {
+			float4 shadow_Debug(v2f i) {
 				float4 s = i.shadowPos;
+				s.xyz/=i.shadowPos.w;
 				float3 uv = s.xyz * 0.5 + 0.5;
 				float d = uv.z;
+
 
 				if (false) {
 					float3 N = normalize(i.normal);
@@ -122,9 +125,9 @@ Shader "MyShader/Ex008 - Shadow Map"
 				//return float4(m,m,m,1); // shadowMap checking
 				//return float4(d, m, 0, 1);
 				float c = 0;
-				//if (d > m.r)
-				//	return float4(c,c,c,1);
-				//return float4(1,1,1,1);
+				if (d > m.r)
+					return float4(c,c,c,1);
+				return float4(1,1,1,1);
 				
 				//PCF
 				float shadow = 0;
@@ -153,8 +156,44 @@ Shader "MyShader/Ex008 - Shadow Map"
 
 			}
 
+
+
+			float shadow(v2f i)
+			{
+				// transform coordinates into texture coordinates [shadow map]
+				float4 s = i.shadowPos;
+				s.xyz/=i.shadowPos.w;
+				float3 shadow_uv = s.xyz * 0.5 + 0.5;
+				float current_depth = shadow_uv.z;	//fragment depth in shadow map	
+				
+				//shadow bias
+				float slope = 1.0;
+				if(false)
+				{
+					float3 N = normalize(i.normal);
+					float3 L = normalize(-MyLightDir.xyz);
+					slope = tan(acos(dot(N,L)));
+				}
+
+				current_depth-=shadowBias*slope;
+
+				float orgin_depth=0.0;//depth in shadow map,the closest point towards light
+				orgin_depth=tex2D(MyShadowMap, shadow_uv).r;
+				
+				float shadow = 0.0;
+				if(false)
+				{
+					//PCF
+				}
+
+
+
+				return float4(shadow,shadow,shadow,1);
+			}
+
 			float4 ps_main (v2f i) : SV_Target {
-				float4 s = shadow(i);
+				float4 s = shadow_Debug(i);
+				//float4 s = shadow(i);
 				return s;
 
 				float4 c = basicLighting(i.wpos, i.normal);

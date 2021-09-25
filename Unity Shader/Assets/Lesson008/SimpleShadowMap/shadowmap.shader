@@ -1,4 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
@@ -94,9 +94,9 @@ Shader "ShadowMap"
 				// Compute pixel depth for shadowing
 				float depth = a_Input.projTex.z / a_Input.projTex.w;
 				
-				// Now linearise using a formula by Humus, drawn from the near and far clipping planes of the camera.
+				// Now linearise using a formula by Humus, drawn from the near and far clipping planes of the camera.		
 				float sceneDepth = _NearClip * (depth + 1.0) / (_FarClip + _NearClip - depth * (_FarClip - _NearClip));
-				
+				//sceneDepth = depth;
 				// Transform to texel space
 			    float2 texelpos = _TexSize * a_Input.projTex.xy;
 			        

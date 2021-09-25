@@ -6,11 +6,19 @@
 
 ### PCF
 
+//参考dirX12形式
+
 ### PCSS
 
+## Unity Projector
 
 
 
+## Unity阴影系统
+
+//catlikecoding
+
+//spot light point light dir light 区别 framedebugger
 
 ## 参考
 
@@ -28,3 +36,4 @@
 
 [Unity Shader - 获取BuiltIn深度纹理和自定义深度纹理的数据](https://blog.csdn.net/linjf520/article/details/104723859)
 
+[Unity Blob Shadow Projector](https://www.youtube.com/watch?v=hQcZA3dYGxg)
