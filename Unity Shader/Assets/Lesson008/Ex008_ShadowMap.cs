@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -108,10 +108,10 @@ public class Ex008_ShadowMap : MonoBehaviour {
 
 	private void OnDrawGizmos() {
 		Gizmos.color = new Color(0,0,1);
-		DrawFrustum(mainCameraFrustumPoints);
+		//DrawFrustum(mainCameraFrustumPoints);
 
 		Gizmos.color = new Color(1,0,0);
-		DrawFrustum(shadowCameraFrustumPoints);
+		//DrawFrustum(shadowCameraFrustumPoints);
 	}
 
 	private void Update() {	
@@ -119,7 +119,7 @@ public class Ex008_ShadowMap : MonoBehaviour {
 		if (!cam)
 			return;
 
-		UpdatePosToFitFrustum();
+		//UpdatePosToFitFrustum();
 
 		cam.renderingPath = RenderingPath.Forward;
 

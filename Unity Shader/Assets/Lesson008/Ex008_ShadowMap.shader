@@ -42,7 +42,10 @@ Shader "MyShader/Ex008 - Shadow Map"
 			};
 
 			float4x4 MyShadowVP;
-
+			static float _TexSize = 512.0f;//float const float都不可以
+			//static const float _TexSize = 512.0f;//float,const float都不可以
+			//float _TexSize = 512.0f;//float const float都不可以
+			
 			v2f vs_main (appdata v) {
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.pos);
@@ -96,7 +99,7 @@ Shader "MyShader/Ex008 - Shadow Map"
 				float3 uv = s.xyz * 0.5 + 0.5;
 				float d = uv.z;
 
-				if (true) {
+				if (false) {
 					float3 N = normalize(i.normal);
 					float3 L = normalize(-MyLightDir.xyz);
 					float slope = tan(acos(dot(N,L)));
@@ -118,19 +121,44 @@ Shader "MyShader/Ex008 - Shadow Map"
 				float m = tex2D(MyShadowMap, uv).r;
 				//return float4(m,m,m,1); // shadowMap checking
 				//return float4(d, m, 0, 1);
-
 				float c = 0;
-				if (d > m.r)
-					return float4(c,c,c,1);
-				return float4(1,1,1,1);
+				//if (d > m.r)
+				//	return float4(c,c,c,1);
+				//return float4(1,1,1,1);
+				
+				//PCF
+				float shadow = 0;
+				float dx = 1.0f/_TexSize;
+				//dx = 1.0f/512.0f;
+				for(int x = -1;x<=1;++x)
+				 for(int y=-1;y<=1;++y)
+					{
+						float2 _offset = dx*float2(x,y);
+						m = tex2D(MyShadowMap,uv+_offset).r;
+						shadow += d>m.r?0:1;
+					}
+				
+				float s0 = tex2D(MyShadowMap,uv+float2(dx,0.0)).r<d?0:1;
+
+
+				//shadow = s0;
+				shadow/=9.0;
+
+				//debug,Shadow Map Only
+				//m = tex2D(MyShadowMap,uv+dx*float2(0,0)).r;
+				//shadow = d>m.r?0:1;
+
+				
+				return float4(shadow,shadow,shadow,1);
+
 			}
 
 			float4 ps_main (v2f i) : SV_Target {
 				float4 s = shadow(i);
-				//return s;
+				return s;
 
 				float4 c = basicLighting(i.wpos, i.normal);
-				return c * s;
+				//return c * s;
 			}
 			ENDCG
 		}
