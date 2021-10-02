@@ -62,14 +62,14 @@ Shader "RayTracing"
 			static Sphere object[NOBJECTS] = 
 			/*	centre					radius^2	COLOR					Kd	Ks	Kr*/
 			{
-				{{0.0, 	 0.0, 10.0}, 	SQR(1.0), 	 {0.0, 0.5, 1.0, 1.0}, 1.0, 1.0, 0.5},
-				{{1.5,   -0.5, 10.0}, 	SQR(0.5), 	 {0.0, 1.0, 0.0, 1.0}, 1.0, 1.0, 0.5},	
-				{{0.0, -101.0, 10.0}, 	SQR(100.0),  {1.0, 1.0, 1.0, 1.0}, 1.0, 1.0, 0.5}
+				{{0.0, 	 0.0, 10.0}, 	SQR(1.0), 	 {0.0, 0.5, 1.0, 1.0}, 1.0, 1.0, 0.5},//blue
+				{{1.5,   -0.5, 10.0}, 	SQR(0.5), 	 {0.0, 1.0, 0.0, 1.0}, 1.0, 1.0, 0.5},//green	
+				{{0.0, -101.0, 10.0}, 	SQR(100.0),  {1.0, 1.0, 1.0, 1.0}, 1.0, 1.0, 0.5}//big sphere as plane
 			};
 			
 			static const float eps = 0.001;	// error epsilon
 			
-			Sphere myObjIndex(int i) // RB: NB cannot use arrays of structs in CG.
+			Sphere SphereIndex(int i) // RB: NB cannot use arrays of structs in CG.
 			{
 				Sphere temp;
 				
@@ -146,7 +146,7 @@ Shader "RayTracing"
 				{
 					bool hit;
 					//return the nearest value to t
-					float t = SphereIntersect(myObjIndex(i), ray, hit);
+					float t = SphereIntersect(SphereIndex(i), ray, hit);
 					
 					if (hit) 
 					{
@@ -174,7 +174,7 @@ Shader "RayTracing"
 				{
 					bool hit;
 					
-					float t = SphereIntersect(myObjIndex(i), ray, hit);
+					float t = SphereIntersect(SphereIndex(i), ray, hit);
 					
 					if (hit) 
 					{
@@ -203,29 +203,29 @@ Shader "RayTracing"
 				return diff * diffuseColor;
 			}
 
-			float4 Shade(float3 i, float3 n, float3 v, int hitobj)
+			float4 Shade(float3 hitpos, float3 n, float3 v, int hitobj)
 			{
 				//float3 l = normalize(lightPosition - i);
-				float3 l = normalize(LightPos - i);
+				float3 l = normalize(LightPos - hitpos);//light dir
 
 				// check if shadowed
 				Ray shadowray;
-				shadowray.o = i;
+				shadowray.o = hitpos;
 				shadowray.d = l;
 				bool shadowed = ShadowCheck(shadowray);
 
 				// lighting
-				float4 diff = myObjIndex(hitobj).color * myObjIndex(hitobj).Kd;
+				float4 diff = SphereIndex(hitobj).color * SphereIndex(hitobj).Kd;
 								
 				if (hitobj == 2) 
 				{
 					// Windows profile does not allow for texture accesses within an if.
 					// uncomment the next line to run on a Mac with a checkered floor.
-					//diff *= 1.0; //tex2D(checkSampler, i.xz);	// floor texture
-					diff *=tex2D(checkSampler,i.xz);
+					//diff *= 1.0; //tex2D(checkSampler, hitpos.xz);	// floor texture
+					diff *=tex2D(checkSampler,hitpos.xz);
 				}
 				
-				float4 spec = lightColor * myObjIndex(hitobj).Ks;
+				float4 spec = lightColor * SphereIndex(hitobj).Ks;
 				float shadowFactor = 0.25f + 0.75f * !shadowed;	
 				//shadowFactor=1.0f;
 				if(DebugShadow==0)
@@ -250,7 +250,6 @@ Shader "RayTracing"
 				
 				temp.pos = UnityObjectToClipPos(v.pos);
 				temp.texcoord = v.texcoord;
-			
 			    return temp;
 			}
 
@@ -269,12 +268,14 @@ Shader "RayTracing"
 				
 				// calculate eye ray
 				float3 d;
-				d.xy = ((IN.texcoord.xy * 2.0) - 1.0) * viewport;//NDC->ScreenPos
+				d.xy = ((IN.texcoord.xy * 2.0) - 1.0) * viewport;//[-1,1] to NDC->ScreenPos
+				//d.xy=IN.texcoord.xy*viewport;
+				//d.xy = ((IN.texcoord.xy * 2.0) - 1.0);//NDC->ScreenPos ortho?
 				//d.y = d.y;	// flip y axis
 				//d.z = foclen;
-				d.z = Focus;
+				d.z = Focus;//forward direction
+				//d.z=30;
 
-				
 
 
 
@@ -282,6 +283,12 @@ Shader "RayTracing"
 				Ray eyeray;
 				//float3 orgin_pos = float3(0,2.5,-1);//从世界原点或其他点出发
 				//float4 orgin_pos = OrginPos;//从世界原点或其他点出发
+
+				//ortho?
+				//OrginPos.xy=IN.texcoord.xy * 2.0 - 1.0;//uv
+				//OrginPos.x+=0.7;
+			
+
 				eyeray.o = mul(OrginPos, view).xyz;//camera to world,相当于view的转置即逆矩阵
 				eyeray.d = mul(d, (float3x3)view);
 				eyeray.d = normalize(eyeray.d);
@@ -298,7 +305,7 @@ Shader "RayTracing"
 				if (hit) 
 				{
 					// shade surface
-					float3 n = SphereNormal(myObjIndex(hitobj), hitpos) ;
+					float3 n = SphereNormal(SphereIndex(hitobj), hitpos) ;
 					c = Shade(hitpos, n, eyeray.d, hitobj);
 				
 					// shoot reflection ray
@@ -312,8 +319,8 @@ Shader "RayTracing"
 					
 					if (hit) 
 					{
-						n = SphereNormal(myObjIndex(hitobj), hitpos);
-						c += Shade(hitpos, n, reflray.d, hitobj2) * myObjIndex(hitobj).Kr;
+						n = SphereNormal(SphereIndex(hitobj), hitpos);
+						c += Shade(hitpos, n, reflray.d, hitobj2) * SphereIndex(hitobj).Kr;
 					} 
 					else
 					{
@@ -324,7 +331,7 @@ Shader "RayTracing"
 				{
 					c = backgroundColor;
 				}
-
+				
 				return c;
 			}
 		

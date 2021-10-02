@@ -461,7 +461,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.03
-  far clip plane: 14.2
+  far clip plane: 42.8
   field of view: 66.48056
   orthographic: 0
   orthographic size: 5
@@ -487,8 +487,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 875423868}
-  m_LocalRotation: {x: 0.30414554, y: -0.08902103, z: 0.04490396, w: 0.94739354}
-  m_LocalPosition: {x: -0.26, y: 6.45, z: -6.34}
+  m_LocalRotation: {x: -0.30534905, y: 0.39255646, z: -0.14005542, w: -0.856181}
+  m_LocalPosition: {x: 14.880211, y: 7.561451, z: -4.0197945}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -920,13 +920,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1216851516}
-  m_LocalRotation: {x: 0.5583262, y: 0.5487377, z: -0.37485322, w: 0.49663267}
+  m_LocalRotation: {x: 0.57572496, y: 0.58052814, z: -0.3230401, w: 0.4766267}
   m_LocalPosition: {x: -5.688595, y: 10.048964, z: 1.6988411}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 75.007, y: 150.73601, z: 68.333}
+  m_LocalEulerAnglesHint: {x: 67.5, y: 151.7, z: 70.4}
 --- !u!114 &1216851519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -941,7 +941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tap_pcf: 1
   Debug_Shadow: 0
-  _mode: 3
+  _mode: 1
   shadowMap: {fileID: 8400000, guid: 141456c84b914dd49840de1ab49f3055, type: 2}
   shader: {fileID: 4800000, guid: 1c106f2de81ba2c429d521ae989bb079, type: 3}
   uvChecker: {fileID: 2800000, guid: 22d7ede6bd1b4734c813f1f7b2187cd4, type: 3}
@@ -1204,7 +1204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9478305b15c61594098161a88f3668a0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.05
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9478305b15c61594098161a88f3668a0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1212,7 +1212,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9478305b15c61594098161a88f3668a0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.72
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9478305b15c61594098161a88f3668a0, type: 3}
       propertyPath: m_LocalRotation.w
